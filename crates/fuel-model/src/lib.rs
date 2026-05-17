@@ -5,6 +5,10 @@
 
 #![cfg_attr(not(test), no_std)]
 
+const GASOLINE_AFR: f32 = 14.7;
+const GASOLINE_DENSITY_GRAMS_PER_LITER: f32 = 745.0;
+const SECONDS_PER_HOUR: f32 = 3600.0;
+
 /// Error returned when constructing a measurement from an invalid value.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ValueError {
@@ -126,6 +130,17 @@ pub fn trip_cost(
     MoneyEur(price.value() * consumption.value() * distance.value() / 100.0)
 }
 
+/// Converts gasoline MAF air flow in g/s to approximate fuel rate in L/h.
+pub fn gasoline_maf_to_fuel_rate_l_per_hour(
+    maf_grams_per_second: f32,
+) -> Result<FuelRateLitersPerHour, ValueError> {
+    let maf_grams_per_second = validate_non_negative_finite(maf_grams_per_second)?;
+    let liters_per_hour = maf_grams_per_second * SECONDS_PER_HOUR
+        / (GASOLINE_AFR * GASOLINE_DENSITY_GRAMS_PER_LITER);
+
+    FuelRateLitersPerHour::new(liters_per_hour)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -218,5 +233,39 @@ mod tests {
         assert_eq!(cost_per_100_km(price, consumption).value(), 0.0);
         assert_eq!(cost_per_hour(price, rate).value(), 0.0);
         assert_eq!(trip_cost(price, distance, consumption).value(), 0.0);
+    }
+
+    #[test]
+    fn converts_normal_maf_to_fuel_rate() {
+        let rate = gasoline_maf_to_fuel_rate_l_per_hour(10.0).unwrap();
+
+        assert_close(rate.value(), 10.0 * 3600.0 / (14.7 * 745.0));
+    }
+
+    #[test]
+    fn converts_zero_maf_to_zero_fuel_rate() {
+        let rate = gasoline_maf_to_fuel_rate_l_per_hour(0.0).unwrap();
+
+        assert_eq!(rate.value(), 0.0);
+    }
+
+    #[test]
+    fn rejects_negative_maf() {
+        assert_eq!(
+            gasoline_maf_to_fuel_rate_l_per_hour(-1.0),
+            Err(ValueError::Negative)
+        );
+    }
+
+    #[test]
+    fn rejects_non_finite_maf() {
+        assert_eq!(
+            gasoline_maf_to_fuel_rate_l_per_hour(f32::NAN),
+            Err(ValueError::NonFinite)
+        );
+        assert_eq!(
+            gasoline_maf_to_fuel_rate_l_per_hour(f32::INFINITY),
+            Err(ValueError::NonFinite)
+        );
     }
 }

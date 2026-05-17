@@ -7,3 +7,7 @@ publish.workspace = true
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+fuel-model = { path = "../fuel-model" }
+obd-core = { path = "../obd-core" }

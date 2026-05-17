@@ -9,6 +9,10 @@ version = "0.1.0"
 [[package]]
 name = "device-core"
 version = "0.1.0"
+dependencies = [
+ "fuel-model",
+ "obd-core",
+]
 
 [[package]]
 name = "fuel-model"

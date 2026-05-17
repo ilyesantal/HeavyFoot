@@ -1,12 +1,52 @@
-   0.004516458s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint: stale: changed "/Users/antalilyes/Projects/HeavyFoot/crates/obd-core/src/lib.rs"
-   0.004530375s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint:           (vs) "/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/obd-core-070a98f32b0d84da/dep-lib-obd_core"
-   0.004533250s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1779048148, nanos: 992615185 } < FileTime { seconds: 1779048170, nanos: 885456134 }
-   0.004594208s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint: fingerprint dirty for obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("obd_core", ["lib"], "/Users/antalilyes/Projects/HeavyFoot/crates/obd-core/src/lib.rs", Edition2021) }
-   0.004605958s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/obd-core-070a98f32b0d84da/dep-lib-obd_core", reference_mtime: FileTime { seconds: 1779048148, nanos: 992615185 }, stale: "/Users/antalilyes/Projects/HeavyFoot/crates/obd-core/src/lib.rs", stale_mtime: FileTime { seconds: 1779048170, nanos: 885456134 } }))
-   0.004805666s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint: stale: changed "/Users/antalilyes/Projects/HeavyFoot/crates/obd-core/src/lib.rs"
-   0.004810000s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint:           (vs) "/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/obd-core-f27d5184699b9378/dep-test-lib-obd_core"
-   0.004811708s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1779048148, nanos: 992613143 } < FileTime { seconds: 1779048170, nanos: 885456134 }
-   0.004859416s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint: fingerprint dirty for obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("obd_core", ["lib"], "/Users/antalilyes/Projects/HeavyFoot/crates/obd-core/src/lib.rs", Edition2021) }
-   0.004864125s  INFO prepare_target{force=false package_id=obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core) target="obd_core"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/obd-core-f27d5184699b9378/dep-test-lib-obd_core", reference_mtime: FileTime { seconds: 1779048148, nanos: 992613143 }, stale: "/Users/antalilyes/Projects/HeavyFoot/crates/obd-core/src/lib.rs", stale_mtime: FileTime { seconds: 1779048170, nanos: 885456134 } }))
-    Checking obd-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/obd-core)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s
+   0.006043667s  INFO prepare_target{force=false package_id=device-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/device-core) target="device_core"}: cargo::core::compiler::fingerprint: fingerprint error for device-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/device-core)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("device_core", ["lib"], "/Users/antalilyes/Projects/HeavyFoot/crates/device-core/src/lib.rs", Edition2021) }
+   0.006742208s  INFO prepare_target{force=false package_id=device-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/device-core) target="device_core"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/device-core-72795323229df9f4/lib-device_core`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: cargo_util::paths::read_bytes
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: <cargo::cli::Exec>::exec
+  13: cargo::main
+  14: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  15: std::rt::lang_start::<()>::{closure#0}
+  16: std::rt::lang_start_internal
+  17: _main
+   0.022868125s  INFO prepare_target{force=false package_id=device-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/device-core) target="device_core"}: cargo::core::compiler::fingerprint: fingerprint error for device-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/device-core)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("device_core", ["lib"], "/Users/antalilyes/Projects/HeavyFoot/crates/device-core/src/lib.rs", Edition2021) }
+   0.022878042s  INFO prepare_target{force=false package_id=device-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/device-core) target="device_core"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/device-core-43481d934f238723/test-lib-device_core`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: cargo_util::paths::read_bytes
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: <cargo::cli::Exec>::exec
+  13: cargo::main
+  14: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  15: std::rt::lang_start::<()>::{closure#0}
+  16: std::rt::lang_start_internal
+  17: _main
+    Checking device-core v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/device-core)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.16s
