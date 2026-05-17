@@ -70,6 +70,31 @@ impl From<CanError> for ObdError {
     }
 }
 
+/// Stateless helper for Mode 01 OBD-II request/response handling.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct ObdClient;
+
+impl ObdClient {
+    /// Creates a new OBD client.
+    pub fn new() -> Self {
+        Self
+    }
+
+    /// Builds a request frame for the supplied Mode 01 PID.
+    pub fn request_frame(&self, pid: Mode01Pid) -> Result<CanFrame, ObdError> {
+        encode_mode01_request(pid)
+    }
+
+    /// Parses a response frame for the expected Mode 01 PID.
+    pub fn parse_response(
+        &self,
+        frame: &CanFrame,
+        expected_pid: Mode01Pid,
+    ) -> Result<Mode01Value, ObdError> {
+        parse_mode01_response(frame, expected_pid)
+    }
+}
+
 /// Returns true when the identifier is in the standard ECU response range.
 pub fn is_ecu_response_id(id: CanId) -> bool {
     let value = id.value();
@@ -164,6 +189,15 @@ mod tests {
     }
 
     #[test]
+    fn client_encodes_vehicle_speed_request() {
+        let client = ObdClient::new();
+        let frame = client.request_frame(Mode01Pid::VehicleSpeed).unwrap();
+
+        assert_eq!(frame.id().value(), FUNCTIONAL_REQUEST_CAN_ID);
+        assert_eq!(frame.data(), [0x02, 0x01, 0x0d, 0, 0, 0, 0, 0]);
+    }
+
+    #[test]
     fn accepts_ecu_response_ids() {
         assert!(is_ecu_response_id(CanId::new(0x7e8).unwrap()));
         assert!(is_ecu_response_id(CanId::new(0x7ef).unwrap()));
@@ -187,6 +221,17 @@ mod tests {
 
         assert_eq!(
             parse_mode01_response(&frame, Mode01Pid::VehicleSpeed),
+            Ok(Mode01Value::VehicleSpeedKmh(88))
+        );
+    }
+
+    #[test]
+    fn client_parses_vehicle_speed_response() {
+        let client = ObdClient::new();
+        let frame = response_frame(0x7e8, [0x03, 0x41, 0x0d, 88, 0, 0, 0, 0], 8);
+
+        assert_eq!(
+            client.parse_response(&frame, Mode01Pid::VehicleSpeed),
             Ok(Mode01Value::VehicleSpeedKmh(88))
         );
     }
