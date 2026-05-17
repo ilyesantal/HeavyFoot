@@ -10,7 +10,51 @@ use fuel_model::{
     gasoline_maf_to_fuel_rate_l_per_hour, FuelConsumptionLitersPer100Km, FuelPriceEurPerLiter,
     FuelRateLitersPerHour, MoneyEur, ValueError,
 };
-use obd_core::Mode01Value;
+use obd_core::{Mode01Pid, Mode01Value};
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum PollSlot {
+    VehicleSpeed,
+    MafAirFlowRate,
+}
+
+/// Simple PID scheduler for the initial polling sequence.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PollScheduler {
+    next: PollSlot,
+}
+
+impl PollScheduler {
+    /// Creates a scheduler starting with vehicle speed.
+    pub fn new() -> Self {
+        Self {
+            next: PollSlot::VehicleSpeed,
+        }
+    }
+
+    /// Returns the next PID to request and advances the sequence.
+    /// Current simple round-robin polling order:
+    /// VehicleSpeed -> MafAirFlowRate -> repeat
+    #[must_use]
+    pub fn next_pid(&mut self) -> Mode01Pid {
+        match self.next {
+            PollSlot::VehicleSpeed => {
+                self.next = PollSlot::MafAirFlowRate;
+                Mode01Pid::VehicleSpeed
+            }
+            PollSlot::MafAirFlowRate => {
+                self.next = PollSlot::VehicleSpeed;
+                Mode01Pid::MafAirFlowRate
+            }
+        }
+    }
+}
+
+impl Default for PollScheduler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 /// Hardware-independent device state.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -127,6 +171,16 @@ mod tests {
         assert_eq!(display.cost_eur_per_hour, None);
         assert_eq!(display.consumption_l_per_100km, None);
         assert_eq!(display.cost_eur_per_100km, None);
+    }
+
+    #[test]
+    fn poll_scheduler_repeats_vehicle_speed_then_maf() {
+        let mut scheduler = PollScheduler::new();
+
+        assert_eq!(scheduler.next_pid(), Mode01Pid::VehicleSpeed);
+        assert_eq!(scheduler.next_pid(), Mode01Pid::MafAirFlowRate);
+        assert_eq!(scheduler.next_pid(), Mode01Pid::VehicleSpeed);
+        assert_eq!(scheduler.next_pid(), Mode01Pid::MafAirFlowRate);
     }
 
     #[test]
