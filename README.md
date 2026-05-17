@@ -4,6 +4,8 @@ ESP32-based OBD-II fuel cost monitor.
 
 The device connects directly to a vehicle CAN bus through an automotive CAN transceiver and queries OBD-II PIDs without using an ELM327 adapter. It estimates fuel usage and cost from vehicle data, then presents current trip values on a small I2C OLED display.
 
+![CI](https://github.com/ilyesantal/HeavyFoot/actions/workflows/rust.yml/badge.svg)
+
 ## Scope
 
 This repository currently contains the host-testable core crates, a small simulator, and hardware/firmware architecture documentation. ESP32-specific firmware, PCB schematics, and hardware drivers are not implemented yet.

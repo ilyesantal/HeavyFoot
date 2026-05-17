@@ -63,7 +63,7 @@ impl CanFrame {
     }
 
     /// Returns true when the payload length is zero.
-    pub fn is_empty(self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.len == 0
     }
 
