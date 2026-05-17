@@ -1,12 +1,52 @@
-   0.057399916s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint: stale: changed "/Users/antalilyes/Projects/HeavyFoot/crates/simulator/src/lib.rs"
-   0.057409666s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint:           (vs) "/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/simulator-ab13bc3d91a51e50/dep-lib-simulator"
-   0.057412250s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1779048829, nanos: 170826980 } < FileTime { seconds: 1779048888, nanos: 801649417 }
-   0.057469958s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint: fingerprint dirty for simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("simulator", ["lib"], "/Users/antalilyes/Projects/HeavyFoot/crates/simulator/src/lib.rs", Edition2021) }
-   0.057480000s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/simulator-ab13bc3d91a51e50/dep-lib-simulator", reference_mtime: FileTime { seconds: 1779048829, nanos: 170826980 }, stale: "/Users/antalilyes/Projects/HeavyFoot/crates/simulator/src/lib.rs", stale_mtime: FileTime { seconds: 1779048888, nanos: 801649417 } }))
-   0.057656166s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint: stale: changed "/Users/antalilyes/Projects/HeavyFoot/crates/simulator/src/lib.rs"
-   0.057658791s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint:           (vs) "/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/simulator-be7636a1fb5a07f9/dep-test-lib-simulator"
-   0.057660333s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1779048829, nanos: 170938978 } < FileTime { seconds: 1779048888, nanos: 801649417 }
-   0.057707208s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint: fingerprint dirty for simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("simulator", ["lib"], "/Users/antalilyes/Projects/HeavyFoot/crates/simulator/src/lib.rs", Edition2021) }
-   0.057711875s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/simulator-be7636a1fb5a07f9/dep-test-lib-simulator", reference_mtime: FileTime { seconds: 1779048829, nanos: 170938978 }, stale: "/Users/antalilyes/Projects/HeavyFoot/crates/simulator/src/lib.rs", stale_mtime: FileTime { seconds: 1779048888, nanos: 801649417 } }))
+   0.004875292s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint: fingerprint error for simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator)/Check { test: false }/TargetInner { name: "simulator", doc: true, ..: with_path("/Users/antalilyes/Projects/HeavyFoot/crates/simulator/src/main.rs", Edition2021) }
+   0.004890292s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/simulator-8e1379d2a07d0b61/bin-simulator`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: cargo_util::paths::read_bytes
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: <cargo::cli::Exec>::exec
+  13: cargo::main
+  14: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  15: std::rt::lang_start::<()>::{closure#0}
+  16: std::rt::lang_start_internal
+  17: _main
+   0.007386042s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint: fingerprint error for simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator)/Check { test: true }/TargetInner { name: "simulator", doc: true, ..: with_path("/Users/antalilyes/Projects/HeavyFoot/crates/simulator/src/main.rs", Edition2021) }
+   0.007393292s  INFO prepare_target{force=false package_id=simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator) target="simulator"}: cargo::core::compiler::fingerprint:     err: failed to read `/Users/antalilyes/Projects/HeavyFoot/target/debug/.fingerprint/simulator-f8611cc4e5ecdf8d/test-bin-simulator`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: std::backtrace::Backtrace::create
+   1: std::backtrace::Backtrace::capture
+   2: cargo_util::paths::read_bytes
+   3: cargo_util::paths::read
+   4: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   5: cargo::core::compiler::fingerprint::prepare_target
+   6: cargo::core::compiler::compile
+   7: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: <cargo::cli::Exec>::exec
+  13: cargo::main
+  14: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  15: std::rt::lang_start::<()>::{closure#0}
+  16: std::rt::lang_start_internal
+  17: _main
     Checking simulator v0.1.0 (/Users/antalilyes/Projects/HeavyFoot/crates/simulator)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
