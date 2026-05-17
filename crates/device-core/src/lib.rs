@@ -6,7 +6,8 @@
 #![cfg_attr(not(test), no_std)]
 
 use fuel_model::{
-    cost_per_hour, gasoline_maf_to_fuel_rate_l_per_hour, FuelPriceEurPerLiter,
+    consumption_from_rate_and_speed, cost_per_100_km, cost_per_hour,
+    gasoline_maf_to_fuel_rate_l_per_hour, FuelConsumptionLitersPer100Km, FuelPriceEurPerLiter,
     FuelRateLitersPerHour, MoneyEur, ValueError,
 };
 use obd_core::Mode01Value;
@@ -68,11 +69,19 @@ impl DeviceState {
 
         let cost_eur_per_hour =
             fuel_rate_l_per_hour.map(|rate| cost_per_hour(self.fuel_price, rate));
+        let consumption_l_per_100km = match (fuel_rate_l_per_hour, self.latest_vehicle_speed_kmh) {
+            (Some(rate), Some(speed)) => consumption_from_rate_and_speed(rate, speed),
+            _ => None,
+        };
+        let cost_eur_per_100km = consumption_l_per_100km
+            .map(|consumption| cost_per_100_km(self.fuel_price, consumption));
 
         DisplayModel {
             speed_kmh: self.latest_vehicle_speed_kmh,
             fuel_rate_l_per_hour,
             cost_eur_per_hour,
+            consumption_l_per_100km,
+            cost_eur_per_100km,
         }
     }
 }
@@ -86,6 +95,10 @@ pub struct DisplayModel {
     pub fuel_rate_l_per_hour: Option<FuelRateLitersPerHour>,
     /// Fuel cost in euros per hour.
     pub cost_eur_per_hour: Option<MoneyEur>,
+    /// Live fuel consumption in liters per 100 kilometers.
+    pub consumption_l_per_100km: Option<FuelConsumptionLitersPer100Km>,
+    /// Live fuel cost in euros per 100 kilometers.
+    pub cost_eur_per_100km: Option<MoneyEur>,
 }
 
 #[cfg(test)]
@@ -112,6 +125,8 @@ mod tests {
         assert_eq!(display.speed_kmh, None);
         assert_eq!(display.fuel_rate_l_per_hour, None);
         assert_eq!(display.cost_eur_per_hour, None);
+        assert_eq!(display.consumption_l_per_100km, None);
+        assert_eq!(display.cost_eur_per_100km, None);
     }
 
     #[test]
@@ -123,7 +138,10 @@ mod tests {
             .unwrap();
 
         assert_eq!(state.latest_vehicle_speed_kmh(), Some(88));
-        assert_eq!(state.display_model().speed_kmh, Some(88));
+        let display = state.display_model();
+        assert_eq!(display.speed_kmh, Some(88));
+        assert_eq!(display.consumption_l_per_100km, None);
+        assert_eq!(display.cost_eur_per_100km, None);
     }
 
     #[test]
@@ -139,6 +157,8 @@ mod tests {
         let display = state.display_model();
         let fuel_rate = display.fuel_rate_l_per_hour.unwrap();
         assert_close(fuel_rate.value(), 10.0 * 3600.0 / (14.7 * 745.0));
+        assert_eq!(display.consumption_l_per_100km, None);
+        assert_eq!(display.cost_eur_per_100km, None);
     }
 
     #[test]
@@ -161,5 +181,32 @@ mod tests {
             display.cost_eur_per_hour.unwrap().value(),
             expected_rate * 2.0,
         );
+        assert_close(
+            display.consumption_l_per_100km.unwrap().value(),
+            expected_rate / 50.0 * 100.0,
+        );
+        assert_close(
+            display.cost_eur_per_100km.unwrap().value(),
+            expected_rate / 50.0 * 100.0 * 2.0,
+        );
+    }
+
+    #[test]
+    fn display_model_omits_per_100km_values_at_zero_speed() {
+        let mut state = state_with_price(2.0);
+
+        state
+            .update_from_obd_value(Mode01Value::VehicleSpeedKmh(0))
+            .unwrap();
+        state
+            .update_from_obd_value(Mode01Value::MafAirFlowRateGramsPerSecond(10.0))
+            .unwrap();
+
+        let display = state.display_model();
+        assert_eq!(display.speed_kmh, Some(0));
+        assert!(display.fuel_rate_l_per_hour.is_some());
+        assert!(display.cost_eur_per_hour.is_some());
+        assert_eq!(display.consumption_l_per_100km, None);
+        assert_eq!(display.cost_eur_per_100km, None);
     }
 }

@@ -30,10 +30,12 @@ fn main() {
             .expect("hardcoded simulation sample is valid");
 
         println!(
-            "speed={} km/h fuel_rate={} L/h cost={} EUR/h",
+            "speed={} km/h fuel_rate={} L/h cost={} EUR/h consumption={} L/100km cost_100km={} EUR/100km",
             format_optional_u8(display.speed_kmh),
             format_optional_f32(display.fuel_rate_l_per_hour.map(|rate| rate.value())),
             format_optional_f32(display.cost_eur_per_hour.map(|cost| cost.value())),
+            format_optional_f32(display.consumption_l_per_100km.map(|value| value.value())),
+            format_optional_f32(display.cost_eur_per_100km.map(|cost| cost.value())),
         );
     }
 }

@@ -121,6 +121,23 @@ pub fn cost_per_hour(price: FuelPriceEurPerLiter, rate: FuelRateLitersPerHour) -
     MoneyEur(price.value() * rate.value())
 }
 
+/// Calculates live fuel consumption from fuel rate and vehicle speed.
+///
+/// Returns `None` when speed is zero because L/100km is undefined while
+/// stationary.
+pub fn consumption_from_rate_and_speed(
+    rate: FuelRateLitersPerHour,
+    speed_kmh: u8,
+) -> Option<FuelConsumptionLitersPer100Km> {
+    if speed_kmh == 0 {
+        None
+    } else {
+        Some(FuelConsumptionLitersPer100Km(
+            rate.value() / f32::from(speed_kmh) * 100.0,
+        ))
+    }
+}
+
 /// Calculates trip fuel cost from distance and average consumption.
 pub fn trip_cost(
     price: FuelPriceEurPerLiter,
@@ -209,6 +226,31 @@ mod tests {
         let rate = FuelRateLitersPerHour::new(0.75).unwrap();
 
         assert_close(cost_per_hour(price, rate).value(), 1.35);
+    }
+
+    #[test]
+    fn calculates_consumption_from_rate_and_speed() {
+        let rate = FuelRateLitersPerHour::new(6.0).unwrap();
+
+        let consumption = consumption_from_rate_and_speed(rate, 60).unwrap();
+
+        assert_close(consumption.value(), 10.0);
+    }
+
+    #[test]
+    fn consumption_from_rate_and_speed_handles_zero_rate() {
+        let rate = FuelRateLitersPerHour::new(0.0).unwrap();
+
+        let consumption = consumption_from_rate_and_speed(rate, 80).unwrap();
+
+        assert_eq!(consumption.value(), 0.0);
+    }
+
+    #[test]
+    fn consumption_from_rate_and_speed_returns_none_at_zero_speed() {
+        let rate = FuelRateLitersPerHour::new(6.0).unwrap();
+
+        assert_eq!(consumption_from_rate_and_speed(rate, 0), None);
     }
 
     #[test]
