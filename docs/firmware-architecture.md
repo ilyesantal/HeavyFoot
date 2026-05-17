@@ -48,3 +48,12 @@ The ESP32 firmware crate owns concrete implementations of these traits.
 - Prefer fixed-capacity buffers and stack allocation.
 - Shared crates should not assume an allocator exists.
 - Dynamic dispatch should only be used when it improves clarity or testability.
+
+## Current Runtime Model
+
+The hardware-independent runtime is built around:
+
+```text
+DeviceRuntime<B: CanBus>
+```
+```
