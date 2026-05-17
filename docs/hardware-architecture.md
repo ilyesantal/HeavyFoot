@@ -25,15 +25,9 @@ ESP32-WROOM-32U
 
 ## Power Input
 
-The vehicle 12 V rail is noisy and load-dump prone. The input stage should include:
+The device is powered from OBD-II pin 16 with ground from pins 4 and 5. The power path uses protected automotive input filtering followed by a buck regulator and optional 3.3 V post-regulation.
 
-- Fuse or resettable overcurrent protection
-- Reverse-polarity protection
-- TVS diode sized for automotive transients
-- Input filtering before the buck regulator
-- Buck regulator selected for automotive voltage range and thermal margin
-
-An optional 3.3 V LDO or post-regulator may be used after the buck when OLED noise, ADC stability, or RF behavior requires a cleaner rail.
+Detailed protection, rail, load, and validation requirements are maintained in `docs/power-subsystem.md`.
 
 ## ESP32 Module
 

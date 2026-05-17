@@ -50,6 +50,7 @@ cargo run -p simulator
 - `docs/runtime-architecture.md`: current host-testable runtime flow
 - `docs/protocol-notes.md`: current OBD-II protocol scope
 - `docs/power-subsystem.md`: automotive power input architecture
+- `docs/power-topology.md`: concise power topology assumptions and open rail questions
 - `docs/decisions.md`: architecture decisions
 - `docs/ai-workflow.md`: AI-assisted development workflow
 - `crates/`: Rust workspace crates

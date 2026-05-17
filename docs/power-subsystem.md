@@ -1,5 +1,7 @@
 # Power Subsystem
 
+This is the canonical power input and rail-planning document. Keep detailed protection, regulator, load, test, and validation requirements here. Shorter hardware overview documents should link here rather than repeat the full power design.
+
 ## Input Source
 
 Power is supplied from the OBD-II connector:
@@ -24,6 +26,27 @@ OBD-II pin 16
 OBD-II pins 4/5
   -> system ground
 ```
+
+The default working assumption is a protected battery input followed by a buck regulator that produces the main 3.3 V rail. A higher intermediate rail, such as 5 V feeding a 3.3 V post-regulator, remains an option but is not selected yet.
+
+## Planned Rails
+
+### VBAT_PROTECTED
+
+Protected vehicle input after fuse, reverse-polarity protection, transient suppression, and input filtering. This rail feeds the switching regulator stage.
+
+### 3V3
+
+Main logic rail for:
+
+- ESP32-WROOM-32U
+- SN65HVD232QD
+- OLED display
+- Buttons, pull-ups, and status LED
+
+### Optional Intermediate Rail
+
+An intermediate rail may be added if needed for regulator efficiency, thermal margin, or future peripherals. It should not be assumed until component selection and load requirements justify it.
 
 ## Protection Blocks
 
@@ -101,6 +124,7 @@ Provide test access for:
 - Reverse-protection topology and acceptable voltage drop.
 - TVS working voltage, clamp voltage, surge rating, and package.
 - Buck regulator input rating, switching frequency, output current, and thermal margin.
+- Whether the buck directly generates 3.3 V or feeds an intermediate rail.
 - Whether the optional 3.3 V post-regulator is needed after measurement.
 - Required OLED current budget at intended brightness.
 - Whether sleep current matters when connected to constant battery voltage.
