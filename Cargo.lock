@@ -28,3 +28,8 @@ dependencies = [
 [[package]]
 name = "simulator"
 version = "0.1.0"
+dependencies = [
+ "device-core",
+ "fuel-model",
+ "obd-core",
+]
