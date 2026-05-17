@@ -32,3 +32,8 @@ This repository currently defines project structure, hardware direction, firmwar
 - `docs/decisions.md`: architecture decisions
 - `docs/ai-workflow.md`: AI-assisted development workflow
 - `crates/`: future Rust crates
+
+## Development Notes
+
+This project was developed with the assistance of AI tools including ChatGPT and Codex.
+All generated code is reviewed, modified, and integrated manually.
