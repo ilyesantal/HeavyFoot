@@ -135,8 +135,8 @@ pub fn gasoline_maf_to_fuel_rate_l_per_hour(
     maf_grams_per_second: f32,
 ) -> Result<FuelRateLitersPerHour, ValueError> {
     let maf_grams_per_second = validate_non_negative_finite(maf_grams_per_second)?;
-    let liters_per_hour = maf_grams_per_second * SECONDS_PER_HOUR
-        / (GASOLINE_AFR * GASOLINE_DENSITY_GRAMS_PER_LITER);
+    let liters_per_hour =
+        maf_grams_per_second * SECONDS_PER_HOUR / (GASOLINE_AFR * GASOLINE_DENSITY_GRAMS_PER_LITER);
 
     FuelRateLitersPerHour::new(liters_per_hour)
 }
@@ -192,10 +192,7 @@ mod tests {
             FuelPriceEurPerLiter::new(f32::NAN),
             Err(ValueError::NonFinite)
         );
-        assert_eq!(
-            DistanceKm::new(f32::INFINITY),
-            Err(ValueError::NonFinite)
-        );
+        assert_eq!(DistanceKm::new(f32::INFINITY), Err(ValueError::NonFinite));
     }
 
     #[test]

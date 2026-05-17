@@ -66,7 +66,8 @@ impl DeviceState {
             .latest_maf_air_flow_grams_per_second
             .and_then(|maf| gasoline_maf_to_fuel_rate_l_per_hour(maf).ok());
 
-        let cost_eur_per_hour = fuel_rate_l_per_hour.map(|rate| cost_per_hour(self.fuel_price, rate));
+        let cost_eur_per_hour =
+            fuel_rate_l_per_hour.map(|rate| cost_per_hour(self.fuel_price, rate));
 
         DisplayModel {
             speed_kmh: self.latest_vehicle_speed_kmh,
@@ -156,6 +157,9 @@ mod tests {
 
         assert_eq!(display.speed_kmh, Some(50));
         assert_close(display.fuel_rate_l_per_hour.unwrap().value(), expected_rate);
-        assert_close(display.cost_eur_per_hour.unwrap().value(), expected_rate * 2.0);
+        assert_close(
+            display.cost_eur_per_hour.unwrap().value(),
+            expected_rate * 2.0,
+        );
     }
 }
