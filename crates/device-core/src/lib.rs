@@ -5,12 +5,13 @@
 
 #![cfg_attr(not(test), no_std)]
 
+use can_core::{CanBus, CanError};
 use fuel_model::{
     consumption_from_rate_and_speed, cost_per_100_km, cost_per_hour,
     gasoline_maf_to_fuel_rate_l_per_hour, FuelConsumptionLitersPer100Km, FuelPriceEurPerLiter,
     FuelRateLitersPerHour, MoneyEur, ValueError,
 };
-use obd_core::{Mode01Pid, Mode01Value};
+use obd_core::{Mode01Pid, Mode01Value, ObdClient, ObdError};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum PollSlot {
@@ -53,6 +54,81 @@ impl PollScheduler {
 impl Default for PollScheduler {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+/// Errors returned by the device runtime.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum RuntimeError {
+    /// CAN bus operation failed.
+    Can(CanError),
+    /// OBD request or response handling failed.
+    Obd(ObdError),
+    /// Device state update failed.
+    Value(ValueError),
+}
+
+impl From<CanError> for RuntimeError {
+    fn from(error: CanError) -> Self {
+        Self::Can(error)
+    }
+}
+
+impl From<ObdError> for RuntimeError {
+    fn from(error: ObdError) -> Self {
+        Self::Obd(error)
+    }
+}
+
+impl From<ValueError> for RuntimeError {
+    fn from(error: ValueError) -> Self {
+        Self::Value(error)
+    }
+}
+
+/// Single-step hardware-independent device runtime.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct DeviceRuntime<B: CanBus> {
+    state: DeviceState,
+    scheduler: PollScheduler,
+    obd_client: ObdClient,
+    bus: B,
+}
+
+impl<B: CanBus> DeviceRuntime<B> {
+    /// Creates a runtime from a CAN bus implementation and fuel price.
+    pub fn new(bus: B, fuel_price: FuelPriceEurPerLiter) -> Self {
+        Self {
+            state: DeviceState::new(fuel_price),
+            scheduler: PollScheduler::new(),
+            obd_client: ObdClient::new(),
+            bus,
+        }
+    }
+
+    /// Returns the current device state.
+    pub fn state(&self) -> &DeviceState {
+        &self.state
+    }
+
+    /// Returns the underlying bus implementation.
+    pub fn bus(&self) -> &B {
+        &self.bus
+    }
+
+    /// Runs one polling step and returns the current display model.
+    pub fn step(&mut self) -> Result<DisplayModel, RuntimeError> {
+        let pid = self.scheduler.next_pid();
+        let request = self.obd_client.request_frame(pid)?;
+
+        self.bus.send(&request)?;
+
+        if let Some(response) = self.bus.receive()? {
+            let value = self.obd_client.parse_response(&response, pid)?;
+            self.state.update_from_obd_value(value)?;
+        }
+
+        Ok(self.state.display_model())
     }
 }
 
@@ -148,9 +224,70 @@ pub struct DisplayModel {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use can_core::{CanFrame, CanId};
+
+    #[derive(Clone, Copy, Debug, PartialEq)]
+    struct MockCanBus {
+        sent: [Option<CanFrame>; 4],
+        sent_len: usize,
+        received: [Option<CanFrame>; 4],
+        receive_index: usize,
+    }
+
+    impl MockCanBus {
+        fn new(received: [Option<CanFrame>; 4]) -> Self {
+            Self {
+                sent: [None; 4],
+                sent_len: 0,
+                received,
+                receive_index: 0,
+            }
+        }
+
+        fn sent_frame(&self, index: usize) -> CanFrame {
+            self.sent[index].unwrap()
+        }
+    }
+
+    impl CanBus for MockCanBus {
+        fn send(&mut self, frame: &CanFrame) -> Result<(), CanError> {
+            self.sent[self.sent_len] = Some(*frame);
+            self.sent_len += 1;
+            Ok(())
+        }
+
+        fn receive(&mut self) -> Result<Option<CanFrame>, CanError> {
+            if self.receive_index >= self.received.len() {
+                return Ok(None);
+            }
+
+            let frame = self.received[self.receive_index];
+            self.receive_index += 1;
+            Ok(frame)
+        }
+    }
 
     fn state_with_price(price: f32) -> DeviceState {
         DeviceState::new(FuelPriceEurPerLiter::new(price).unwrap())
+    }
+
+    fn runtime_with_responses(received: [Option<CanFrame>; 4]) -> DeviceRuntime<MockCanBus> {
+        DeviceRuntime::new(
+            MockCanBus::new(received),
+            FuelPriceEurPerLiter::new(2.0).unwrap(),
+        )
+    }
+
+    fn response_frame(data: [u8; 8]) -> CanFrame {
+        CanFrame::new(CanId::new(0x7e8).unwrap(), data, 8).unwrap()
+    }
+
+    fn speed_response(speed: u8) -> CanFrame {
+        response_frame([0x03, 0x41, 0x0d, speed, 0, 0, 0, 0])
+    }
+
+    fn maf_response(raw_a: u8, raw_b: u8) -> CanFrame {
+        response_frame([0x04, 0x41, 0x10, raw_a, raw_b, 0, 0, 0])
     }
 
     fn assert_close(actual: f32, expected: f32) {
@@ -181,6 +318,70 @@ mod tests {
         assert_eq!(scheduler.next_pid(), Mode01Pid::MafAirFlowRate);
         assert_eq!(scheduler.next_pid(), Mode01Pid::VehicleSpeed);
         assert_eq!(scheduler.next_pid(), Mode01Pid::MafAirFlowRate);
+    }
+
+    #[test]
+    fn runtime_scheduler_alternates_requests() {
+        let mut runtime = runtime_with_responses([None, None, None, None]);
+
+        runtime.step().unwrap();
+        runtime.step().unwrap();
+        runtime.step().unwrap();
+
+        assert_eq!(
+            runtime.bus().sent_frame(0).data(),
+            [0x02, 0x01, 0x0d, 0, 0, 0, 0, 0]
+        );
+        assert_eq!(
+            runtime.bus().sent_frame(1).data(),
+            [0x02, 0x01, 0x10, 0, 0, 0, 0, 0]
+        );
+        assert_eq!(
+            runtime.bus().sent_frame(2).data(),
+            [0x02, 0x01, 0x0d, 0, 0, 0, 0, 0]
+        );
+    }
+
+    #[test]
+    fn runtime_updates_speed_from_received_frame() {
+        let mut runtime = runtime_with_responses([Some(speed_response(88)), None, None, None]);
+
+        let display = runtime.step().unwrap();
+
+        assert_eq!(runtime.state().latest_vehicle_speed_kmh(), Some(88));
+        assert_eq!(display.speed_kmh, Some(88));
+    }
+
+    #[test]
+    fn runtime_updates_maf_from_received_frame() {
+        let mut runtime =
+            runtime_with_responses([None, Some(maf_response(0x03, 0xe8)), None, None]);
+
+        runtime.step().unwrap();
+        let display = runtime.step().unwrap();
+
+        let expected_rate = 10.0 * 3600.0 / (14.7 * 745.0);
+        assert_eq!(
+            runtime.state().latest_maf_air_flow_grams_per_second(),
+            Some(10.0)
+        );
+        assert_close(display.fuel_rate_l_per_hour.unwrap().value(), expected_rate);
+        assert_close(
+            display.cost_eur_per_hour.unwrap().value(),
+            expected_rate * 2.0,
+        );
+    }
+
+    #[test]
+    fn runtime_handles_no_response_frame() {
+        let mut runtime = runtime_with_responses([None, None, None, None]);
+
+        let display = runtime.step().unwrap();
+
+        assert_eq!(runtime.state().latest_vehicle_speed_kmh(), None);
+        assert_eq!(runtime.state().latest_maf_air_flow_grams_per_second(), None);
+        assert_eq!(display.speed_kmh, None);
+        assert_eq!(display.fuel_rate_l_per_hour, None);
     }
 
     #[test]

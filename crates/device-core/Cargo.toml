@@ -9,5 +9,6 @@ publish.workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+can-core = { path = "../can-core" }
 fuel-model = { path = "../fuel-model" }
 obd-core = { path = "../obd-core" }
