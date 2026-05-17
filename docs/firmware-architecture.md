@@ -41,3 +41,10 @@ The ESP32 firmware crate owns concrete implementations of these traits.
 - Unit-test fuel and cost calculations with fixed time steps.
 - Test application state with mock CAN, display, button, clock, and settings implementations.
 - Keep hardware integration tests separate from host tests.
+
+## Resource Philosophy
+
+- Avoid heap allocation unless justified.
+- Prefer fixed-capacity buffers and stack allocation.
+- Shared crates should not assume an allocator exists.
+- Dynamic dispatch should only be used when it improves clarity or testability.

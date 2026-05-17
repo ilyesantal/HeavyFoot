@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "crates/can-core",
+    "crates/device-core",
+    "crates/fuel-model",
+    "crates/obd-core",
+    "crates/simulator",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "UNLICENSED"
+publish = false
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"
