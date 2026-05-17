@@ -1,7 +1,7 @@
 //! Host-side simulation support for device behavior.
 //!
 //! This crate feeds fake OBD values into `device-core` and returns display
-//! models. It intentionally has no CLI yet.
+//! models. It also provides a small CLI binary for printing hardcoded samples.
 
 use can_core::{CanFrame, CanId};
 use device_core::{DeviceState, DisplayModel};
