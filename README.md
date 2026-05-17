@@ -1,10 +1,14 @@
+<p align="center">
+  <img src="assets/logo-dark.png" width="300" alt="HeavyFoot logo">
+</p>
+
+![CI](https://github.com/ilyesantal/HeavyFoot/actions/workflows/rust.yml/badge.svg)
+
 # HeavyFoot
 
 ESP32-based OBD-II fuel cost monitor.
 
 The device connects directly to a vehicle CAN bus through an automotive CAN transceiver and queries OBD-II PIDs without using an ELM327 adapter. It estimates fuel usage and cost from vehicle data, then presents current trip values on a small I2C OLED display.
-
-![CI](https://github.com/ilyesantal/HeavyFoot/actions/workflows/rust.yml/badge.svg)
 
 ## Scope
 
