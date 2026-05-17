@@ -17,6 +17,9 @@ version = "0.1.0"
 [[package]]
 name = "obd-core"
 version = "0.1.0"
+dependencies = [
+ "can-core",
+]
 
 [[package]]
 name = "simulator"
